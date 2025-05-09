@@ -1,0 +1,72 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  password      String
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  problems      Problem[]
+  solutions     Solution[]
+  comments      Comment[]
+  bojUsername   String?
+}
+
+model Problem {
+  id          String    @id @default(cuid())
+  title       String
+  content     String
+  difficulty  String
+  tags        String[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  authorId    String
+  author      User      @relation(fields: [authorId], references: [id])
+  solutions   Solution[]
+  bojId       Int?      // 백준 문제 ID (있는 경우)
+}
+
+model Solution {
+  id          String    @id @default(cuid())
+  content     String    // 마크다운 형식의 풀이
+  code        String    // 코드
+  language    String    // 프로그래밍 언어
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  problemId   String
+  problem     Problem   @relation(fields: [problemId], references: [id])
+  authorId    String
+  author      User      @relation(fields: [authorId], references: [id])
+  comments    Comment[]
+}
+
+model Comment {
+  id          String    @id @default(cuid())
+  content     String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  solutionId  String
+  solution    Solution  @relation(fields: [solutionId], references: [id])
+  authorId    String
+  author      User      @relation(fields: [authorId], references: [id])
+}
+
+model STLReference {
+  id          String    @id @default(cuid())
+  language    String    // 프로그래밍 언어
+  name        String    // STL 이름
+  description String    // 설명
+  example     String    // 예제 코드
+  category    String    // 카테고리 (자료구조, 알고리즘 등)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
